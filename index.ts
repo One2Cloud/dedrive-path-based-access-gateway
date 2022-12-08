@@ -8,7 +8,7 @@ import { config } from './src/config';
 import mongoose from 'mongoose';
 import Item from './src/models/item.model';
 import Pod from './src/models/pod.model';
-import mime from 'mime';
+import * as mime from 'mime';
 
 const app: Application = express();
 
