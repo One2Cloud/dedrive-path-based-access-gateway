@@ -82,7 +82,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 async function main() {
-  await mongoose.connect(config.mongodb.url);
+  await mongoose.connect(config.mongodb.url, { dbName: 'dedrive_devnet' });
   app.listen(8080, (): void => {
     console.log(`Connected successfully on port 8080`);
   });
