@@ -34,11 +34,15 @@ app.use(
       if (ext) {
         const mime_ = mime.getType(ext);
         console.log({ mime_ });
-        proxyRes.headers['Content-Type'] = `${mime_ || 'application/octet-stream'}`;
-        res.setHeader('Content-Type', `${mime_ || 'application/octet-stream'}`);
+        proxyRes.headers['X-DeDrive'] = '1';
+        proxyRes.headers['Content-Type'] = mime_ || 'application/octet-stream';
+        res.setHeader('Content-Type', mime_ || 'application/octet-stream');
+        res.setHeader('X-DeDrive', '1');
       } else {
+        proxyRes.headers['X-DeDrive'] = '1';
         proxyRes.headers['Content-Type'] = 'application/octet-stream';
         res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('X-DeDrive', '1');
       }
     },
     onProxyReq: async (proxyReq, req, res) => {
@@ -53,7 +57,7 @@ app.use(
       if (ext) {
         const mime_ = mime.getType(ext);
         console.log({ mime_ });
-        res.setHeader('Content-Type', `${mime_ || 'application/octet-stream'}`);
+        res.setHeader('Content-Type', mime_ || 'application/octet-stream');
       } else {
         res.setHeader('Content-Type', 'application/octet-stream');
       }
@@ -106,6 +110,38 @@ app.use(
     },
   }),
 );
+
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  const podName: string = req.hostname.split('.')[0];
+  if (req.path.endsWith('/')) {
+    const prefix = podName;
+    const item = await Item.findOne({ name: 'index.html', prefix });
+    if (!item) throw new Error(`Item not found`);
+    const ext = item.name.split('.').at(-1);
+    if (ext) {
+      const mime_ = mime.getType(ext);
+      console.log({ mime_ });
+      res.setHeader('Content-Type', mime_ || 'application/octet-stream');
+    } else {
+      res.setHeader('Content-Type', 'application/octet-stream');
+    }
+  } else {
+    const keys = req.path.split('/');
+    const name = keys.pop();
+    keys.unshift(podName);
+    const prefix = keys.join('/');
+    const item = await Item.findOne({ name, prefix });
+    if (!item) throw new Error(`Item not found`);
+    const ext = item.name.split('.').at(-1);
+    if (ext) {
+      const mime_ = mime.getType(ext);
+      console.log({ mime_ });
+      res.setHeader('Content-Type', mime_ || 'application/octet-stream');
+    } else {
+      res.setHeader('Content-Type', 'application/octet-stream');
+    }
+  }
+});
 
 // app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 //   console.error(err);
