@@ -8,6 +8,7 @@ import { config } from './src/config';
 import mongoose from 'mongoose';
 import Item from './src/models/item.model';
 import Pod from './src/models/pod.model';
+import mime from 'mime';
 
 const app: Application = express();
 
@@ -21,6 +22,19 @@ app.use(cors());
 app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
+    onProxyRes: (proxyRes, req, res) => {
+      if (req.path.endsWith('/')) {
+        proxyRes.headers['content-type'] = 'text/html';
+      } else {
+        const ext = req.path.split('.').pop();
+        if (ext) {
+          const mime_ = mime.getType(ext);
+          proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+        } else {
+          proxyRes.headers['content-type'] = 'application/octet-stream';
+        }
+      }
+    },
     router: async (req) => {
       // return `dev.gateway.dedrive.io`;
       return {
