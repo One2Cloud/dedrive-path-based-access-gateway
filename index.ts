@@ -24,14 +24,17 @@ app.use(
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
     onProxyRes: (proxyRes, req, res) => {
       if (req.path.endsWith('/')) {
-        proxyRes.headers['content-type'] = 'text/html';
+        res.setHeader('content-type', 'text/html');
       } else {
         const ext = req.path.split('.').pop();
         if (ext) {
           const mime_ = mime.getType(ext);
-          proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+          console.log({ mime_ });
+          // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+          res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
         } else {
-          proxyRes.headers['content-type'] = 'application/octet-stream';
+          // proxyRes.headers['content-type'] = 'application/octet-stream';
+          res.setHeader('content-type', 'application/octet-stream');
         }
       }
     },
