@@ -22,23 +22,26 @@ app.use(cors());
 app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
-    // onProxyRes: (proxyRes, req, res) => {
-    //   if (req.path.endsWith('/') || req.path === '/') {
-    //     res.setHeader('content-type', 'text/html');
-    //   } else {
-    //     const ext = req.path.split('.').at(-1);
-    //     console.log({ ext });
-    //     if (ext) {
-    //       const mime_ = mime.getType(ext);
-    //       console.log({ mime_ });
-    //       // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
-    //       res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
-    //     } else {
-    //       // proxyRes.headers['content-type'] = 'application/octet-stream';
-    //       res.setHeader('content-type', 'application/octet-stream');
-    //     }
-    //   }
-    // },
+    onProxyRes: (proxyRes, req, res) => {
+      console.log(proxyRes.url);
+      console.log(req.path);
+      // console.log(res.);
+      // if (req.path.endsWith('/') || req.path === '/') {
+      //   res.setHeader('content-type', 'text/html');
+      // } else {
+      //   const ext = req.path.split('.').at(-1);
+      //   console.log({ ext });
+      //   if (ext) {
+      //     const mime_ = mime.getType(ext);
+      //     console.log({ mime_ });
+      //     // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+      //     res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
+      //   } else {
+      //     // proxyRes.headers['content-type'] = 'application/octet-stream';
+      //     res.setHeader('content-type', 'application/octet-stream');
+      //   }
+      // }
+    },
     router: async (req) => {
       // return `dev.gateway.dedrive.io`;
       return {
@@ -58,7 +61,7 @@ app.use(
         console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
       } else {
-        const keys = req.path.split('/').filter((x) => x);
+        const keys = req.path.split('/');
         console.log({ keys });
         const name = keys.pop();
         keys.unshift(podName);
@@ -73,8 +76,9 @@ app.use(
       }
     },
     onError: async (err, req, res, target) => {
-      // const podName = req.hostname.split('.')[0];
-      const podName = 'test-pod-website';
+      console.error(err);
+      const podName = req.hostname.split('.')[0];
+      // const podName = 'test-pod-website';
       console.log(`Pod Name: ${podName}`);
       const pod = await Pod.findOne({ name: podName });
       if (!pod) throw new Error(`Pod ${podName} not found`);
