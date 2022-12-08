@@ -39,15 +39,15 @@ app.use(
         // proxyRes.headers['X-DeDrive'] = '1';
         // proxyRes.headers['Content-Type'] = mime_ || 'application/octet-stream';
         res.setHeader('Content-Type', mime_ || 'application/octet-stream');
-        res.setHeader('X-DeDrive', '1');
-        res.removeHeader('Content-Disposition');
       } else {
         // proxyRes.headers['X-DeDrive'] = '1';
         // proxyRes.headers['Content-Type'] = 'application/octet-stream';
         res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('X-DeDrive', '1');
-        res.removeHeader('Content-Disposition');
       }
+      res.setHeader('X-DeDrive', '1');
+      res.removeHeader('Content-Disposition');
+      // res.header;
+      res.setHeader('Content-Disposition', 'inline');
       return responseBuffer;
     }),
     target: 'http://dev.gateway.dedrive.io',
