@@ -36,15 +36,17 @@ app.use(
       if (ext) {
         const mime_ = mime.getType(ext);
         console.log({ mime_ });
-        proxyRes.headers['X-DeDrive'] = '1';
-        proxyRes.headers['Content-Type'] = mime_ || 'application/octet-stream';
+        // proxyRes.headers['X-DeDrive'] = '1';
+        // proxyRes.headers['Content-Type'] = mime_ || 'application/octet-stream';
         res.setHeader('Content-Type', mime_ || 'application/octet-stream');
         res.setHeader('X-DeDrive', '1');
+        res.removeHeader('Content-Disposition');
       } else {
-        proxyRes.headers['X-DeDrive'] = '1';
-        proxyRes.headers['Content-Type'] = 'application/octet-stream';
+        // proxyRes.headers['X-DeDrive'] = '1';
+        // proxyRes.headers['Content-Type'] = 'application/octet-stream';
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('X-DeDrive', '1');
+        res.removeHeader('Content-Disposition');
       }
       return responseBuffer;
     }),
