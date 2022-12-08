@@ -23,6 +23,7 @@ app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
     onProxyRes: (proxyRes, req, res) => {
+      console.log('hihhihi');
       console.log(proxyRes.url);
       console.log(req.path);
       // console.log(res);
