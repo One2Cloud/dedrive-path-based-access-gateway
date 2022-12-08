@@ -44,7 +44,8 @@ app.use(
       };
     },
     pathRewrite: async (path, req) => {
-      const podName = req.hostname.split('.')[0];
+      // const podName = req.hostname.split('.')[0];
+      const podName = 'test-pod-website';
       console.log(`Pod Name: ${podName}`);
       const pod = await Pod.findOne({ name: podName });
       if (!pod) throw new Error(`Pod ${podName} not found`);
@@ -52,6 +53,7 @@ app.use(
       if (req.path.endsWith('/')) {
         const item = await Item.findOne({ name: 'index.html', pod });
         if (!item) throw new Error(`Item not found`);
+        console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
       } else {
         const keys = req.path.split('/');
@@ -61,16 +63,19 @@ app.use(
         console.log(`Prefix: ${prefix}`);
         const item = await Item.findOne({ name, prefix, pod: pod });
         if (!item) throw new Error(`Item not found`);
+        console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
       }
     },
     onError: async (err, req, res, target) => {
-      const podName = req.hostname.split('.')[0];
+      // const podName = req.hostname.split('.')[0];
+      const podName = 'test-pod-website';
       console.log(`Pod Name: ${podName}`);
       const pod = await Pod.findOne({ name: podName });
       if (!pod) throw new Error(`Pod ${podName} not found`);
       const item = await Item.findOne({ name: 'index.html', pod });
       if (!item) throw new Error(`Item not found`);
+      console.log(`Item UID: ${item.uid}`);
       return `/v1/access/${item.uid}`;
     },
   }),
