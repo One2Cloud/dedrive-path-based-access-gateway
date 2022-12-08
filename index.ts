@@ -82,12 +82,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 async function main() {
-  await mongoose.connect(`mongodb://${config.mongodb.host}:${config.mongodb.port}/`, {
-    user: config.mongodb.username,
-    pass: config.mongodb.password,
-    dbName: config.mongodb.database,
-    authSource: 'admin',
-  });
+  await mongoose.connect(config.mongodb.url);
   app.listen(8080, (): void => {
     console.log(`Connected successfully on port 8080`);
   });
