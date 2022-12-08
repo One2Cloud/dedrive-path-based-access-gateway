@@ -43,9 +43,11 @@ app.use(
       //   }
       // }
     },
-    router: async (req) => {
-      return `http://dev.gateway.dedrive.io`;
-    },
+    target: 'http://dev.gateway.dedrive.io',
+    changeOrigin: true,
+    // router: async (req) => {
+    //   return `http://dev.gateway.dedrive.io`;
+    // },
     pathRewrite: async (path, req) => {
       const podName: string = req.hostname.split('.')[0];
       console.log(`Pod Name: ${podName}`);
