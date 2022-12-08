@@ -23,25 +23,23 @@ app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
     onProxyRes: (proxyRes, req, res) => {
-      console.log('hihhihi');
-      console.log(proxyRes.url);
-      console.log(req.path);
+      console.log('path:' + req.path);
       // console.log(res);
-      // if (req.path.endsWith('/') || req.path === '/') {
-      //   res.setHeader('content-type', 'text/html');
-      // } else {
-      //   const ext = req.path.split('.').at(-1);
-      //   console.log({ ext });
-      //   if (ext) {
-      //     const mime_ = mime.getType(ext);
-      //     console.log({ mime_ });
-      //     // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
-      //     res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
-      //   } else {
-      //     // proxyRes.headers['content-type'] = 'application/octet-stream';
-      //     res.setHeader('content-type', 'application/octet-stream');
-      //   }
-      // }
+      if (req.path.endsWith('/') || req.path === '/') {
+        res.setHeader('content-type', 'text/html');
+      } else {
+        const ext = req.path.split('.').at(-1);
+        console.log({ ext });
+        if (ext) {
+          const mime_ = mime.getType(ext);
+          console.log({ mime_ });
+          // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+          res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
+        } else {
+          // proxyRes.headers['content-type'] = 'application/octet-stream';
+          res.setHeader('content-type', 'application/octet-stream');
+        }
+      }
     },
     target: 'http://dev.gateway.dedrive.io',
     changeOrigin: true,
