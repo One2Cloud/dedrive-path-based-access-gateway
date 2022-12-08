@@ -22,6 +22,10 @@ app.use(cors());
 app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
+    onProxyReq: (proxyReq, req, res) => {
+      console.log(`1-${proxyReq.path}`);
+      console.log(`2-${req.path}`);
+    },
     onProxyRes: (proxyRes, req, res) => {
       console.log('path:' + req.path);
       // console.log(res);
