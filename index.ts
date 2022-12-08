@@ -89,11 +89,11 @@ app.use(
   }),
 );
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-  console.log({ req, res });
-  return res.status(404).send();
-});
+// app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+//   console.error(err);
+//   console.log({ req, res });
+//   return res.status(404).send();
+// });
 
 async function main() {
   await mongoose.connect(config.mongodb.url, { dbName: 'dedrive_devnet' });
