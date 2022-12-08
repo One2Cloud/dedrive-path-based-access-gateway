@@ -41,6 +41,23 @@ app.use(
         res.setHeader('Content-Type', 'application/octet-stream');
       }
     },
+    onProxyReq: async (proxyReq, req, res) => {
+      console.log('path:' + req.path);
+      const uid = req.path.split('/').at(-1);
+      console.log({ uid });
+      const item = await Item.findOne({ uid });
+      if (!item) throw new Error(`Item not found`);
+      console.log(item.name);
+      const ext = item.name.split('.').at(-1);
+      console.log({ ext });
+      if (ext) {
+        const mime_ = mime.getType(ext);
+        console.log({ mime_ });
+        res.setHeader('Content-Type', `${mime_ || 'application/octet-stream'}`);
+      } else {
+        res.setHeader('Content-Type', 'application/octet-stream');
+      }
+    },
     target: 'http://dev.gateway.dedrive.io',
     changeOrigin: true,
     // router: async (req) => {
