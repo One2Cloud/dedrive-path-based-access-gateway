@@ -3,7 +3,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import _ from 'lodash';
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middleware';
 import { config } from './src/config';
 import mongoose from 'mongoose';
 import Item from './src/models/item.model';
@@ -22,9 +22,10 @@ app.use(cors());
 app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
-    onProxyRes: async (proxyRes, req, res) => {
-      console.log('path:' + req.path);
-      const uid = req.path.split('/').at(-1);
+    selfHandleResponse: true,
+    onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+      console.log('path:' + new URL(req.url!).pathname);
+      const uid = new URL(req.url!).pathname.split('/').at(-1);
       console.log({ uid });
       const item = await Item.findOne({ uid });
       if (!item) throw new Error(`Item not found`);
@@ -44,24 +45,8 @@ app.use(
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('X-DeDrive', '1');
       }
-    },
-    onProxyReq: async (proxyReq, req, res) => {
-      console.log('path:' + req.path);
-      const uid = req.path.split('/').at(-1);
-      console.log({ uid });
-      const item = await Item.findOne({ uid });
-      if (!item) throw new Error(`Item not found`);
-      console.log(item.name);
-      const ext = item.name.split('.').at(-1);
-      console.log({ ext });
-      if (ext) {
-        const mime_ = mime.getType(ext);
-        console.log({ mime_ });
-        res.setHeader('Content-Type', mime_ || 'application/octet-stream');
-      } else {
-        res.setHeader('Content-Type', 'application/octet-stream');
-      }
-    },
+      return responseBuffer;
+    }),
     target: 'http://dev.gateway.dedrive.io',
     changeOrigin: true,
     // router: async (req) => {
@@ -99,49 +84,9 @@ app.use(
     },
     onError: async (err, req, res, target) => {
       console.error({ err, req, res, target });
-      // const podName = req.hostname.split('.')[0];
-      // console.log(`Pod Name: ${podName}`);
-      // const pod = await Pod.findOne({ name: podName });
-      // if (!pod) throw new Error(`Pod ${podName} not found`);
-      // const item = await Item.findOne({ name: 'index.html', pod });
-      // if (!item) throw new Error(`Item not found`);
-      // console.log(`Item UID: ${item.uid}`);
-      // return `/v1/access/${item.uid}`;
     },
   }),
 );
-
-app.use(async (req: Request, res: Response, next: NextFunction) => {
-  const podName: string = req.hostname.split('.')[0];
-  if (req.path.endsWith('/')) {
-    const prefix = podName;
-    const item = await Item.findOne({ name: 'index.html', prefix });
-    if (!item) throw new Error(`Item not found`);
-    const ext = item.name.split('.').at(-1);
-    if (ext) {
-      const mime_ = mime.getType(ext);
-      console.log({ mime_ });
-      res.setHeader('Content-Type', mime_ || 'application/octet-stream');
-    } else {
-      res.setHeader('Content-Type', 'application/octet-stream');
-    }
-  } else {
-    const keys = req.path.split('/');
-    const name = keys.pop();
-    keys.unshift(podName);
-    const prefix = keys.join('/');
-    const item = await Item.findOne({ name, prefix });
-    if (!item) throw new Error(`Item not found`);
-    const ext = item.name.split('.').at(-1);
-    if (ext) {
-      const mime_ = mime.getType(ext);
-      console.log({ mime_ });
-      res.setHeader('Content-Type', mime_ || 'application/octet-stream');
-    } else {
-      res.setHeader('Content-Type', 'application/octet-stream');
-    }
-  }
-});
 
 // app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 //   console.error(err);
