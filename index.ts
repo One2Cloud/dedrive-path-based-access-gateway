@@ -55,8 +55,10 @@ app.use(
         return `/v1/access/${item.uid}`;
       } else {
         const keys = req.path.split('/').filter((x) => x);
+        console.log({ keys });
         const name = keys.pop();
         keys.unshift(podName);
+        console.log({ keys });
         const prefix = keys.join('/');
         console.log(`Name: ${name}`);
         console.log(`Prefix: ${prefix}`);
