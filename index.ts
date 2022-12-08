@@ -34,9 +34,11 @@ app.use(
       if (ext) {
         const mime_ = mime.getType(ext);
         console.log({ mime_ });
-        res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
+        proxyRes.headers['Content-Type'] = `${mime_ || 'application/octet-stream'}`;
+        // res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
       } else {
-        res.setHeader('content-type', 'application/octet-stream');
+        // res.setHeader('content-type', 'application/octet-stream');
+        proxyRes.headers['Content-Type'] = 'application/octet-stream';
       }
     },
     target: 'http://dev.gateway.dedrive.io',
