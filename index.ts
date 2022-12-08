@@ -22,23 +22,23 @@ app.use(cors());
 app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
-    onProxyRes: (proxyRes, req, res) => {
-      if (req.path.endsWith('/') || req.path === '/') {
-        res.setHeader('content-type', 'text/html');
-      } else {
-        const ext = req.path.split('.').at(-1);
-        console.log({ ext });
-        if (ext) {
-          const mime_ = mime.getType(ext);
-          console.log({ mime_ });
-          // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
-          res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
-        } else {
-          // proxyRes.headers['content-type'] = 'application/octet-stream';
-          res.setHeader('content-type', 'application/octet-stream');
-        }
-      }
-    },
+    // onProxyRes: (proxyRes, req, res) => {
+    //   if (req.path.endsWith('/') || req.path === '/') {
+    //     res.setHeader('content-type', 'text/html');
+    //   } else {
+    //     const ext = req.path.split('.').at(-1);
+    //     console.log({ ext });
+    //     if (ext) {
+    //       const mime_ = mime.getType(ext);
+    //       console.log({ mime_ });
+    //       // proxyRes.headers['content-type'] = `${mime_ || 'application/octet-stream'}`;
+    //       res.setHeader('content-type', `${mime_ || 'application/octet-stream'}`);
+    //     } else {
+    //       // proxyRes.headers['content-type'] = 'application/octet-stream';
+    //       res.setHeader('content-type', 'application/octet-stream');
+    //     }
+    //   }
+    // },
     router: async (req) => {
       // return `dev.gateway.dedrive.io`;
       return {
