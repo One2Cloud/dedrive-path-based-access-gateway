@@ -23,10 +23,11 @@ app.use(
   // createProxyMiddleware((pathname, req) => req.method === "GET", {
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
     onProxyRes: (proxyRes, req, res) => {
-      if (req.path.endsWith('/')) {
+      if (req.path.endsWith('/') || req.path === '/') {
         res.setHeader('content-type', 'text/html');
       } else {
-        const ext = req.path.split('.').pop();
+        const ext = req.path.split('.').at(-1);
+        console.log({ ext });
         if (ext) {
           const mime_ = mime.getType(ext);
           console.log({ mime_ });
@@ -87,6 +88,7 @@ app.use(
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
+  console.log({ req, res });
   return res.status(404).send();
 });
 
