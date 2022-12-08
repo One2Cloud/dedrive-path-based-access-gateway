@@ -1,0 +1,12 @@
+dist/
+build/
+.DS_Store
+node_modules/
+.env
+.env*
+
+!.env.example
+!.env.sample
+*.log
+.idea/
+bin/database.ts
