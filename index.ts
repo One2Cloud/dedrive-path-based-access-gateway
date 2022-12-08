@@ -67,7 +67,7 @@ app.use(
         console.log(`/v1/access/${item.uid}`);
         return `/v1/access/${item.uid}`;
       } else {
-        const keys = req.path.split('/');
+        const keys = req.path.split('/').filter((x) => !!x);
         console.log({ keys });
         const name = keys.pop();
         keys.unshift(podName);
