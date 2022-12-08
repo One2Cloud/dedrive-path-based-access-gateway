@@ -44,24 +44,23 @@ app.use(
       };
     },
     pathRewrite: async (path, req) => {
-      // const podName = req.hostname.split('.')[0];
-      const podName = 'test-pod-website';
+      const podName: string = req.hostname.split('.')[0];
       console.log(`Pod Name: ${podName}`);
-      const pod = await Pod.findOne({ name: podName });
-      if (!pod) throw new Error(`Pod ${podName} not found`);
       console.log(`Path: ${req.path}`);
       if (req.path.endsWith('/')) {
-        const item = await Item.findOne({ name: 'index.html', pod });
+        const prefix = podName;
+        const item = await Item.findOne({ name: 'index.html', prefix });
         if (!item) throw new Error(`Item not found`);
         console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
       } else {
         const keys = req.path.split('/');
         const name = keys.pop();
+        keys.unshift(podName);
         const prefix = keys.join('/');
         console.log(`Name: ${name}`);
         console.log(`Prefix: ${prefix}`);
-        const item = await Item.findOne({ name, prefix, pod: pod });
+        const item = await Item.findOne({ name, prefix });
         if (!item) throw new Error(`Item not found`);
         console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
