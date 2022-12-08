@@ -54,7 +54,7 @@ app.use(
         console.log(`Item UID: ${item.uid}`);
         return `/v1/access/${item.uid}`;
       } else {
-        const keys = req.path.split('/');
+        const keys = req.path.split('/').filter((x) => x);
         const name = keys.pop();
         keys.unshift(podName);
         const prefix = keys.join('/');
