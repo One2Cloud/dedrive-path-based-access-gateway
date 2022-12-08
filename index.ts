@@ -24,6 +24,7 @@ app.use(
   createProxyMiddleware((pathname, req) => req.method === 'GET', {
     selfHandleResponse: true,
     onProxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+      console.log(`url+${req.url}`);
       console.log('path:' + new URL(req.url!).pathname);
       const uid = new URL(req.url!).pathname.split('/').at(-1);
       console.log({ uid });
