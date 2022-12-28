@@ -1,4 +1,4 @@
-import express, { Request, Response, Application, NextFunction } from 'express';
+import express, { Application, NextFunction } from 'express';
 import compression from 'compression';
 import morgan from 'morgan';
 import _ from 'lodash';
@@ -7,7 +7,6 @@ import { createProxyMiddleware, responseInterceptor } from 'http-proxy-middlewar
 import { config } from './src/config';
 import mongoose from 'mongoose';
 import Item from './src/models/item.model';
-import Pod from './src/models/pod.model';
 import * as mime from 'mime';
 
 const app: Application = express();
@@ -39,7 +38,7 @@ app.use(
       res.setHeader('Content-Disposition', 'inline');
       return responseBuffer;
     }),
-    target: 'http://dev.gateway.dedrive.io',
+    target: `http://${config.accessGatewayHostName}`,
     changeOrigin: true,
     pathRewrite: async (path, req) => {
       const podName: string = req.hostname.split('.')[0];
@@ -48,6 +47,7 @@ app.use(
         const item = await Item.findOne({ name: 'index.html', prefix });
         if (!item) throw new Error(`Item not found`);
         return `/v1/access/${item.uid}`;
+        open;
       } else {
         const keys = req.path.split('/').filter((x) => !!x);
         const name = keys.pop();
@@ -68,7 +68,7 @@ app.use(
 );
 
 async function main() {
-  await mongoose.connect(config.mongodb.url, { dbName: 'dedrive_devnet' });
+  await mongoose.connect(config.mongodb.url, { dbName: config.mongodb.dbName });
   app.listen(8080, (): void => {
     console.log(`Connected successfully on port 8080`);
   });
