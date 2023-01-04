@@ -15,8 +15,8 @@ export const config: IConfig = {
     // username: process.env.MONGODB_USER || 'admin',
     // password: process.env.MONGODB_PASSWORD || 'admin',
     // database: process.env.MONGODB_DATABASE || 'dedrive',
-    url: process.env.MONGODB_URL || 'mongodb://localhost:27017/drive',
-    dbName: process.env.MONGODB_DATABASE || 'dedrive_devnet',
+    url: process.env.MONGODB_URL?.replace('/n', '') || 'mongodb://localhost:27017',
+    dbName: process.env.MONGODB_DATABASE?.replace('/n', '') || 'dedrive_devnet',
   },
   accessGatewayHostName: process.env.ACCESS_GATEWAY_HOSTNAME || 'localhost',
 };
