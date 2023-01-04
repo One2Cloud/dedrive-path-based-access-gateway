@@ -1,0 +1,101 @@
+name: Harbor Image CI
+
+on:
+  push:
+    branches: [ "develop" ]
+
+# Env variable
+env:
+  HARBOR_REGISTRY_URI: harbor.degital.io
+  HARBOR_PROJECT: dedrive
+  IMAGE_NAME: path-based-access-gateway
+
+jobs:
+  build-image-and-publish-to-harbor:
+    runs-on: ubuntu-latest
+    outputs:
+      slug-output-sha7: ${{ steps.slug.outputs.sha7 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Get Git Short SHA
+        id: slug
+        run: echo "sha7=$(echo ${{ github.sha }} | cut -c1-7)" >>$GITHUB_OUTPUT
+
+      - name: Build Docker image
+        id: build
+        run: docker build . -t $IMAGE_NAME
+
+      - name: Login to registry
+        run: echo "${{ secrets.HARBOR_PASSWORD }}" | docker login $HARBOR_REGISTRY_URI -u ${{ secrets.HARBOR_USERNAME }} --password-stdin
+
+      - name: Push image
+        run: |
+          IMAGE_ID=$HARBOR_REGISTRY_URI/$HARBOR_PROJECT/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          
+          docker tag $IMAGE_NAME $IMAGE_ID:${{ steps.slug.outputs.sha7 }}
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker image push --all-tags $IMAGE_ID
+
+      # Write Job status to file
+      - name: Create file build-image-and-publish-to-harbor-job-status.txt and write the job status into it
+        if: always()
+        run: |
+          echo '${{ github.job }} job in workflow ${{ github.workflow }} of ${{github.repository}} is ${{ job.status }}.' > build_image_and_publish_to_harbor_job_status.txt
+      # Upload the Jobs status file to artifact
+      - name: Upload file build_image_and_publish_to_harbor_job_status.txt as an artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        id: job01_status_artifact
+        with:
+          name: job01_status_artifact
+          path: build_image_and_publish_to_harbor_job_status.txt
+
+  # update-manifest-repo-image-tag:
+  #   runs-on: ubuntu-latest
+  #   needs: [build-image-and-publish-to-harbor]
+  #   steps:
+  #     # checks out to Manifest Repo
+  #     - uses: actions/checkout@v3
+  #       name: Checkout to manifest Repo
+  #       with:
+  #         repository: One2Cloud/dedrive-api-path-based-access-gateway-manifest
+  #         ref: 'develop'
+  #         submodules: false
+  #         token: ${{ secrets.PRIVATE_TOKEN_GITHUB }}
+
+  #     # Push update to Manifest repo
+  #     - name: Update Manifest Image Tag And Push to Git repo
+  #       run: |
+  #         git config user.name "GitHub Actions Bot"
+  #         git config user.email "<>"
+  #         yq -i '.image.tag = "${{ needs.build-image-and-publish-to-harbor.outputs.slug-output-sha7 }}"' values.yaml
+  #         git add values.yaml
+  #         git commit -m '🚀 Update Image Version to ${{ needs.build-image-and-publish-to-harbor.outputs.slug-output-sha7 }}'
+  #         git push
+
+  #     # Write Job status to file
+  #     - name: Create file update-manifest-repo-image-tag-job-status.txt and write the job status into it
+  #       if: always()
+  #       run: |
+  #         echo '${{ github.job }} job in workflow ${{ github.workflow }} of ${{github.repository}} is ${{ job.status }}.' > update_manifest_repo_image_tag_job_status.txt
+  #     # Upload the Jobs status file to artifact
+  #     - name: Upload file update_manifest_repo_image_tag_job_status.txt as an artifact
+  #       if: always()
+  #       uses: actions/upload-artifact@v3
+  #       id: job02_status_artifact
+  #       with:
+  #         name: job02_status_artifact
+  #         path: update_manifest_repo_image_tag_job_status.txt
