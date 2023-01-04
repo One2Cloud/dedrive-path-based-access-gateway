@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export interface IConfig {
   mongodb: {
